@@ -35,16 +35,21 @@ vi.mock('../../src/services/directory', () => {
   return { default: ServiceDirectory }
 })
 
-test('invoke', async () => {
+test('Invokes tool', async () => {
   const res = await supertest(app).post('/tools/id1').send({ q: 'hello' })
   expect(fetch).toBeCalledWith('url1?q=hello')
   expect(res.status).toBe(200)
   expect(res.body).toEqual({ result: [ 0, 1, 'q=hello' ]})
 })
 
-test('handles errors', async () => {
+test('Handles error', async () => {
   const res = await supertest(app).post('/tools/id2').send({ q: 'hello' })
   expect(fetch).toBeCalledWith('url2?q=hello')
   expect(res.status).toBe(500)
   expect(res.body.error).toMatch(/undefined/)
+})
+
+test('Unknown tool', async () => {
+  const res = await supertest(app).post('/tools/id3').send({ q: 'hello' })
+  expect(res.status).toBe(400)
 })

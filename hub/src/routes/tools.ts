@@ -9,17 +9,22 @@ export const toolsRouter = (directory: ServiceDirectory) => {
 
   router.post('/:name', async (req, res) => {
     try {
+
+      // browse services
       for (const service of directory.services) {
-        if (!service.endpoints) continue
-        for (const endpoint of service.endpoints) {
-          //console.log(endpoint.id, req.params.name)
-          if (endpoint.id === req.params.name) {
-            res.json(await invoke(endpoint, req))
-            return
-          }
+        
+        // find endpoint
+        const endpoint = service.endpoints?.find((e) => e.id === req.params.name)
+        if (endpoint) {
+          res.json(await invoke(endpoint, req))
+          return
         }
+      
       }
-      res.sendStatus(404)
+
+      // unknown tool
+      res.sendStatus(400)
+
     } catch (err: unknown) {
       console.error(err)
       res.status(500).json({ error: err.message })
