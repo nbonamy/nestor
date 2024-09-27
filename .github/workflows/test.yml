@@ -12,13 +12,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Remove package-lock.json
-        uses: JesseTG/rm@v1.0.3
-        with:
-          path: ./hub/package-lock.json
       - name: Install Hub Dependencies
         working-directory: ./hub
         run: npm i
       - name: Run Hub tests
         working-directory: ./hub
+        run: npm test
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm i
+      - name: Run Client tests
+        working-directory: ./client
         run: npm test

@@ -12,7 +12,7 @@ export interface Hub {
   name: string
   host: string
   port: number
-  tools: any[]
+  tools?: any[]
 }
 
 export interface NestorClientOptions {
@@ -47,7 +47,9 @@ export class NestorClient {
       }
     });
     this.browser.on('serviceDown', service => {
-      this.remove(service)
+      if (service.name) {
+        this.remove(service.name)
+      }
     });
     this.browser.start();
 
@@ -56,15 +58,15 @@ export class NestorClient {
   async list(): Promise<any[]> {
     const tools: any[] = []
     for (const hub of this.hubs) {
-      if (await this.ping(hub)) {
-        tools.push(...hub.tools)
+      if (hub.tools !== null && await this.ping(hub)) {
+        tools.push(...hub.tools!)
       }
     }
     return tools
   }
 
   async call(name: string, parameters: { [key: string]: any }): Promise<any> {
-    const hub = this.hubs.find(hub => hub.tools.find(tool => tool.function.name === name))
+    const hub = this.hubs.find(hub => hub.tools?.find(tool => tool.function.name === name))
     if (!hub) throw new Error(`Tool ${name} not found`)
     const url = `http://${hub.host}:${hub.port}/tools/${name}`
     const response = await fetch(url, {
@@ -80,25 +82,30 @@ export class NestorClient {
   private add(service: mdns.Service) {
     this.logger?.log(`Hub found at ${service.host}:${service.port}`)
     if (service.name) {
-      this.remove(service)
-      const hub = { name: service.name, host: service.host, port: service.port, tools: [] }
+      this.remove(service.name)
+      const hub = { name: service.name, host: service.host, port: service.port }
       this.hubs.push(hub)
       this.fetchTools(hub)
     }
   }
 
-  private remove(service: mdns.Service): void {
-    this.logger?.log(`Hub removed at ${service.host}:${service.port}`)
-    this.hubs = this.hubs.filter(hub => hub.name !== service.name)
+  private remove(name: string): void {
+    this.logger?.log(`Hub ${name} removed`)
+    this.hubs = this.hubs.filter(hub => hub.name !== name)
   }
 
   private async fetchTools(hub: Hub): Promise<void> {
-    const url = `http://${hub.host}:${hub.port}/toolbox/${this.format}`
-    const response = await fetch(url)
-    if (response.ok) {
-      const toolbox = await response.json()
-      this.logger?.log(`Fetched toolbox at ${url}`)
-      hub.tools = toolbox
+    try {
+      const url = `http://${hub.host}:${hub.port}/toolbox/${this.format}`
+      const response = await fetch(url)
+      if (response.ok) {
+        const toolbox = await response.json()
+        this.logger?.log(`Fetched toolbox at ${url}`)
+        hub.tools = toolbox
+      }
+    } catch (err) {
+      this.logger?.error(`Error while fetching tools from hub ${hub.name}`, err)
+      this.remove(hub.name)
     }
   }
 
