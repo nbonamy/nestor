@@ -7,10 +7,11 @@ export const invoke = async (endpoint: Endpoint, req: Request) => {
   // build the url
   let url = endpoint.url
   if (req.body) {
-    url += '?'
+    let query = []
     for (const key in req.body) {
-      url += `${key}=${req.body[key]}&`
+      query.push(`${key}=${encodeURIComponent(req.body[key])}`)
     }
+    url += '?' + query.join('&')
   }
 
   // now call

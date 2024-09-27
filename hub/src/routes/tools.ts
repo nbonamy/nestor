@@ -2,6 +2,7 @@
 import { Router } from 'express'
 import ServiceDirectory from '../services/directory'
 import { invoke } from '../services/invoke'
+
 export const toolsRouter = (directory: ServiceDirectory) => {
   
   const router = Router()
@@ -21,7 +22,7 @@ export const toolsRouter = (directory: ServiceDirectory) => {
       res.sendStatus(404)
     } catch (err: unknown) {
       console.error(err)
-      res.sendStatus(500)
+      res.status(500).json({ error: err.message })
     }
   })
 
