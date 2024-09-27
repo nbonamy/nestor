@@ -21,6 +21,7 @@
   "description": "Nestor Hub: the API Hub for AI agents",
   "dependencies": {
     "body-parser": "^1.20.3",
+    "commander": "^12.1.0",
     "config": "^3.3.12",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
