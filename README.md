@@ -103,6 +103,7 @@ Implementing a client is even more straightforward if you already have a LLM-bas
 ## TODO
 
 - [ ] Tests!
+- [ ] Support more HTTP verbs for API calls
 
 ## Suggestions
 
