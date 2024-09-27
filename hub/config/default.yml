@@ -1,0 +1,3 @@
+log:
+  filename: log/nestor.log
+  level: debug

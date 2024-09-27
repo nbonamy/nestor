@@ -1,0 +1,25 @@
+{
+  "name": "@nestor/service",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "author": "nicolas@bonamy.fr",
+  "license": "Apache-2.0",
+  "description": "Helpers to implement a Nestor service",
+  "dependencies": {
+    "mdns": "^2.7.2"
+  },
+  "devDependencies": {
+    "@types/mdns": "^0.0.38",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
+  }
+}

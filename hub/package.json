@@ -1,0 +1,55 @@
+{
+  "name": "@nestor/hub",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "npx tsx ./src/index.ts",
+    "dev": "npx tsx --watch ./src/index.ts",
+    "build": "tsup",
+    "lint": "npx eslint src/",
+    "test": "npx vitest",
+    "testui": "npx vitest --ui --coverage.enabled=true",
+    "pm2": "pm2 start ecosystem.config.json --env production ; pm2 save"
+  },
+  "author": "nicolas@bonamy.fr",
+  "license": "Apache-2.0",
+  "description": "Nestor Hub: the API Hub for AI agents",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "config": "^3.3.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "fs-extra": "^11.2.0",
+    "helmet": "^7.1.0",
+    "mdns": "^2.7.2",
+    "morgan": "^1.10.0",
+    "portfinder": "^1.0.32",
+    "uuid": "^10.0.0",
+    "winston": "^3.14.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/config": "^3.3.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/mdns": "^0.0.38",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.7.2",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/ui": "^2.1.1",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  }
+}
