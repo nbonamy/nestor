@@ -1,0 +1,24 @@
+# .github/workflows/test.yml
+name: Tests
+on:
+  push:
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Github checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Remove package-lock.json
+        uses: JesseTG/rm@v1.0.3
+        with:
+          path: ./hub/package-lock.json
+      - name: Install Hub Dependencies
+        working-directory: ./hub
+        run: npm i
+      - name: Run Hub tests
+        working-directory: ./hub
+        run: npm test
