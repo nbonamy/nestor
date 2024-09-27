@@ -4,7 +4,7 @@ Nestor is an API hub designed to empower AI agents with the ability to discover,
 
 ## Key Features
 
-* Service Discovery: Nestor automatically detects and aggregates Nestor-compatible API services on the local network, making them accessible to connected AI agents.
+* Zeroconf Service Discovery: Nestor automatically detects and aggregates Nestor-compatible API services on the local network, making them accessible to connected AI agents. No configuration needed!
 * Execution Orchestration: Nestor acts as a single point of contact for these API services, orchestrating function calls requested by the LLM model
 
 ## High-Level Architecture
