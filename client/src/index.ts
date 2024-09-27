@@ -32,7 +32,7 @@ export class NestorClient {
     // logger
     this.logger = opts?.logger
     if (this.logger === undefined) {
-      console.log 
+      this.logger = console
     }
 
     // format with default
