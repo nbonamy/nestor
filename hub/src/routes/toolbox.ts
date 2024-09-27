@@ -1,50 +1,20 @@
 
 import { Router } from 'express'
+import Marshaller from '../services/marshaller'
 import ServiceDirectory from '../services/directory'
 
 export const toolboxRouter = (directory: ServiceDirectory) => {
   
   const router = Router()
 
-  router.get('/', (req, res) => {
+  router.get(['/', '/:format'], (req, res) => {
 
-    const endpoints = []
-
-    for (const service of directory.services) {
-      if (!service.endpoints) continue
-      for (const endpoint of service.endpoints) {
-        if (endpoint.description && endpoint.url) {
-          
-          // build properties first
-          const properties: { [key: string]: { type: string, description: string } } = {}
-          for (const param of endpoint.parameters) {
-            properties[param.name] = {
-              type: param.type,
-              description: param.description
-            }
-          }
-          
-          // now build the parameters
-          const parameters = {
-            type: 'object',
-            properties: properties,
-            required: endpoint.parameters.filter(p => p.required).map(p => p.name)
-          }
-          
-          // done
-          endpoints.push({
-            type: 'function',
-            function: {
-              name: endpoint.id,
-              description: endpoint.description,
-              parameters: parameters,
-            }
-          })
-        }
-      }
+    const marshaller = new Marshaller()
+    if (req.params.format === undefined || req.params.format === 'openai') {
+      res.json(marshaller.toOpenAI(directory))
+    } else {
+      res.status(400).send({ error: 'invalid format' })
     }
-
-    res.json(endpoints)
 
   })
 
