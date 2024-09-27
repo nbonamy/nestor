@@ -1,6 +1,13 @@
 
 import * as mdns from 'mdns'
 
+export type ToolsFormat = 'openai'
+
+export interface Logger {
+  log: CallableFunction
+  error: CallableFunction
+}
+
 export interface Hub {
   name: string
   host: string
@@ -9,22 +16,29 @@ export interface Hub {
 }
 
 export interface NestorClientOptions {
-  logger?: CallableFunction|null
+  logger?: Logger|null
+  format?: ToolsFormat|null
 }
 
 export class NestorClient {
 
-  logger?: CallableFunction|null
+  logger?: Logger|null
+  format: ToolsFormat
   browser!: mdns.Browser
   hubs: Hub[] = []
 
   constructor(opts?: NestorClientOptions) {
     
+    // logger
     this.logger = opts?.logger
     if (this.logger === undefined) {
       console.log 
     }
 
+    // format with default
+    this.format = opts?.format || 'openai'
+
+    // now start the browser
     this.browser = mdns.createBrowser(mdns.tcp('nestor'))
     this.browser.on('serviceUp', service => {
       const txtRecord = service.txtRecord
@@ -64,7 +78,7 @@ export class NestorClient {
   }
 
   private add(service: mdns.Service) {
-    this.logger?.(`Hub found at ${service.host}:${service.port}`)
+    this.logger?.log(`Hub found at ${service.host}:${service.port}`)
     if (service.name) {
       this.remove(service)
       const hub = { name: service.name, host: service.host, port: service.port, tools: [] }
@@ -73,18 +87,17 @@ export class NestorClient {
     }
   }
 
-
   private remove(service: mdns.Service): void {
-    this.logger?.(`Hub removed at ${service.host}:${service.port}`)
+    this.logger?.log(`Hub removed at ${service.host}:${service.port}`)
     this.hubs = this.hubs.filter(hub => hub.name !== service.name)
   }
 
   private async fetchTools(hub: Hub): Promise<void> {
-    const url = `http://${hub.host}:${hub.port}/toolbox`
+    const url = `http://${hub.host}:${hub.port}/toolbox/${this.format}`
     const response = await fetch(url)
     if (response.ok) {
       const toolbox = await response.json()
-      this.logger?.(`Fetched toolbox at ${url}`)
+      this.logger?.log(`Fetched toolbox at ${url}`)
       hub.tools = toolbox
     }
   }
@@ -95,7 +108,7 @@ export class NestorClient {
       const response = await fetch(url)
       return response.ok
     } catch (err) {
-      console.error(`Error while pinging hub ${hub.name}`, err)
+      this.logger?.error(`Error while pinging hub ${hub.name}`, err)
       return false
     }
   }
