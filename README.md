@@ -100,6 +100,10 @@ Implementing a client is even more straightforward if you already have a LLM-bas
 - Instantiate a new NestorClient
 - Provide the result of NestorClient.list() to the LLM call
 
+## TODO
+
+- [ ] Tests!
+
 ## Suggestions
 
 Nestor is in its early stage and all suggestions are welcome!
