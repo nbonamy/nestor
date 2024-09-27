@@ -24,3 +24,9 @@ jobs:
       - name: Run Client tests
         working-directory: ./client
         run: npm test
+      - name: Install Service Dependencies
+        working-directory: ./service
+        run: npm i
+      - name: Run Service tests
+        working-directory: ./service
+        run: npm test
