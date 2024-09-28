@@ -55,11 +55,17 @@ app.get('/ping', (req, res) => {
   res.send('pong')
 })
 
+// add service directory as middleware
+app.use((req, res, next) => {
+  req.serviceDirectory = serviceDirectory
+  next()
+})
+
 // routes
-import { toolsRouter } from './routes/tools'
-import { toolboxRouter } from './routes/toolbox'
-app.use('/toolbox', toolboxRouter(serviceDirectory))
-app.use('/tools', toolsRouter(serviceDirectory))
+import toolsRouter from './routes/tools'
+import toolboxRouter from './routes/toolbox'
+app.use('/toolbox', toolboxRouter)
+app.use('/tools', toolsRouter)
 
 // not found middleware comes last
 app.use(function(req, res) {

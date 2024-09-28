@@ -1,23 +1,29 @@
 
 import { Router } from 'express'
 import Marshaller from '../services/marshaller'
-import ServiceDirectory from '../services/directory'
 
-export const toolboxRouter = (directory: ServiceDirectory) => {
-  
-  const router = Router()
+const router = Router()
 
-  router.get(['/', '/:format'], (req, res) => {
+router.get(['/', '/:format'], (req, res) => {
+
+  try {
 
     const marshaller = new Marshaller()
     if (req.params.format === undefined || req.params.format === 'openai') {
-      res.json(marshaller.toOpenAI(directory))
+      res.json(marshaller.toOpenAI(req.serviceDirectory))
     } else {
       res.status(400).send({ error: 'invalid format' })
     }
 
-  })
+  } catch (err: unknown) {
+    console.error('Error while marshalling toolbox', err)
+    if  (err instanceof Error) {
+      res.status(500).json({ error: err.message })
+    } else {
+      res.status(500).json({ error: 'unknown error' })
+    }
+  }
 
-  return router
+})
 
-}
+export default router

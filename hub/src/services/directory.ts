@@ -1,27 +1,8 @@
 
 import slugify from '@sindresorhus/slugify'
+import type { Endpoint, Service } from '../types'
 
-export interface Parameter {
-  name: string
-  type: string
-  description: string
-  required: boolean
-}
-
-export interface Endpoint {
-  id: string
-  name: string
-  description: string
-  url: string
-  method: 'GET'|'POST'|'PUT'|'DELETE'
-  parameters: Parameter[]
-}
-
-export interface Service {
-  name: string
-  host: string
-  port: number
-  path?: string
+export type EndpointResponse = {
   endpoints: Endpoint[]
 }
 
@@ -31,7 +12,6 @@ export default class ServiceDirectory {
 
   constructor() {
     this.services = []
-    this.status()
   }
 
   async add(name: string, host: string, port: number, path: string): Promise<void> {
@@ -57,7 +37,7 @@ export default class ServiceDirectory {
     const url = `http://${service.host}:${service.port}${service.path}`
     try {
       const response = await fetch(url)
-      const json: any = await response.json()
+      const json: EndpointResponse = await response.json() as EndpointResponse
       const endpoints: Endpoint[] = json.endpoints as Endpoint[]
       service.endpoints = endpoints.map(e => {
         const id = slugify(`${service.name}-${e.name}`, { separator: '_', preserveCharacters: ['-'] })

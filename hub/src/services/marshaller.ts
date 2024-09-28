@@ -1,5 +1,5 @@
 
-import ServiceDirectory from './directory'
+import { ServiceDirectory } from '../types'
 
 export default class Marshaller {
 

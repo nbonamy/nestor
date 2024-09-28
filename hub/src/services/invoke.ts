@@ -1,6 +1,6 @@
 
 import type { Request } from 'express'
-import { Endpoint } from './directory'
+import type { Endpoint } from '../types'
 
 export const invoke = async (endpoint: Endpoint, req: Request) => {
 
@@ -12,7 +12,7 @@ export const invoke = async (endpoint: Endpoint, req: Request) => {
 
   // for GET add parameters here
   if (method === 'GET' && req.body) {
-    let query = []
+    const query = []
     for (const key in req.body) {
       query.push(`${key}=${encodeURIComponent(req.body[key])}`)
     }
