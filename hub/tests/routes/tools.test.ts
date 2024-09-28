@@ -11,6 +11,9 @@ global.fetch = vi.fn((req) => {
 
 vi.mock('../../src/services/directory', () => {
   const ServiceDirectory = vi.fn()
+  ServiceDirectory.prototype.add = vi.fn()
+  ServiceDirectory.prototype.remove = vi.fn()
+  ServiceDirectory.prototype.fetchEnpoints = vi.fn()
   ServiceDirectory.prototype.services = [
     {
       endpoints: [
