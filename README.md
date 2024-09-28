@@ -92,6 +92,8 @@ Each parameter is described by:
 | `description` | string | The description of the parameter as it will be provided to the LLM. Remember that the LLM decision how to use the parameter will be based on that description!|
 | `required` | boolean | If this paramter is mandatory or not|
 
+Services can of course be implemented in any language. You can find an example of python service in [nest-examples/service3](https://github.com/nbonamy/nestor-examples/blob/main/service3/main.py).
+
 ## Client implementation
 
 Implementing a client is even more straightforward if you already have a LLM-based agent. If not the implementation available in `nestor-examples` is pretty generic (except for the hard-coded prompt) and could be reused almost as-is:
