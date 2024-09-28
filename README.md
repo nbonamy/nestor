@@ -103,9 +103,9 @@ Implementing a client is even more straightforward if you already have a LLM-bas
 ## TODO
 
 - [ ] Publish @nestor/* packages
-- [ ] Support more HTTP verbs for API calls
 - [X] Error handling (everywhere)
 - [X] Tests!
+- [x] Support more HTTP verbs for API calls
 
 ## Suggestions
 

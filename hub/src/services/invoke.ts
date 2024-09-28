@@ -4,9 +4,14 @@ import { Endpoint } from './directory'
 
 export const invoke = async (endpoint: Endpoint, req: Request) => {
 
-  // build the url
+  // method
+  const method = endpoint.method || 'GET'
+
+  // init the url
   let url = endpoint.url
-  if (req.body) {
+
+  // for GET add parameters here
+  if (method === 'GET' && req.body) {
     let query = []
     for (const key in req.body) {
       query.push(`${key}=${encodeURIComponent(req.body[key])}`)
@@ -14,9 +19,21 @@ export const invoke = async (endpoint: Endpoint, req: Request) => {
     url += '?' + query.join('&')
   }
 
+  // options
+  let options: RequestInit | undefined
+
+  // for POST/PUT/DELETE add parameters here
+  if (method !== 'GET' && req.body) {
+    options = {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    }
+  }
+
   // now call
   //console.log('Calling tool at', url)
-  const response = await fetch(url)
+  const response = options ? await fetch(url, options) : await fetch(url)
   const data = await response.json()
   return data
 
