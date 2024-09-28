@@ -18,13 +18,14 @@ export interface Hub {
 export interface NestorClientOptions {
   logger?: Logger|null
   format?: ToolsFormat|null
+  autostart?: boolean
 }
 
 export class NestorClient {
 
   logger?: Logger|null
   format: ToolsFormat
-  browser!: mdns.Browser
+  browser?: mdns.Browser
   hubs: Hub[] = []
 
   constructor(opts?: NestorClientOptions) {
@@ -38,6 +39,15 @@ export class NestorClient {
     // format with default
     this.format = opts?.format || 'openai'
 
+    // autostart
+    if (opts?.autostart !== false) {
+      this.start()
+    }
+
+  }
+
+  start(): void {
+    
     // now start the browser
     this.browser = mdns.createBrowser(mdns.tcp('nestor'))
     this.browser.on('serviceUp', service => {
@@ -55,11 +65,26 @@ export class NestorClient {
 
   }
 
+  stop(): void {
+    this.browser?.stop()
+    this.browser = undefined
+  }
+
+  connect(host: string, port: number): void {
+    const hub = { name: `${host}:${port}`, host: host, port: port, tools: undefined }
+    this.hubs.push(hub)
+  }
+
+  disconnect(host: string, port: number): void {
+    this.hubs = this.hubs.filter(hub => hub.host !== host || hub.port !== port)
+  }
+
   async list(): Promise<any[]> {
     const tools: any[] = []
     for (const hub of this.hubs) {
-      if (hub.tools !== null && await this.ping(hub)) {
-        tools.push(...hub.tools!)
+      await this.fetchTools(hub)
+      if (hub.tools !== undefined) {
+        tools.push(...hub.tools)
       }
     }
     return tools
@@ -85,7 +110,6 @@ export class NestorClient {
       this.remove(service.name)
       const hub = { name: service.name, host: service.host, port: service.port }
       this.hubs.push(hub)
-      this.fetchTools(hub)
     }
   }
 
@@ -105,18 +129,7 @@ export class NestorClient {
       }
     } catch (err) {
       this.logger?.error(`Error while fetching tools from hub ${hub.name}`, err)
-      this.remove(hub.name)
-    }
-  }
-
-  private async ping(hub: Hub): Promise<boolean> {
-    try {
-      const url = `http://${hub.host}:${hub.port}/ping`
-      const response = await fetch(url)
-      return response.ok
-    } catch (err) {
-      this.logger?.error(`Error while pinging hub ${hub.name}`, err)
-      return false
+      hub.tools = undefined
     }
   }
 

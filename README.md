@@ -93,6 +93,8 @@ Each parameter is described by:
 | `description` | string | The description of the parameter as it will be provided to the LLM. Remember that the LLM decision how to use the parameter will be based on that description!|
 | `required` | boolean | If this paramter is mandatory or not|
 
+In specific environments, you may want to not use auto-discovery and manual register to a hub knowing its hostname and port. In that case, you can pass `{ autostart: false }` when building the service and then use the `register` and `unregister` methods of `NestorService`.
+
 Services can of course be implemented in any language. You can find an example of python service in [nest-examples/service3](https://github.com/nbonamy/nestor-examples/blob/main/service3/main.py).
 
 ## Client implementation
@@ -103,6 +105,8 @@ Implementing a client is even more straightforward if you already have a LLM-bas
 - Import/require `NestorClient` in your application
 - Instantiate a new `NestorClient`
 - Provide the result of `NestorClient.list()` to the LLM call
+
+In specific environments, you may want to not use auto-discovery and manual connect to a hub knowing its hostname and port. In that case, you can pass `{ autostart: false }` when building the client and then use the `connect` and `disconnect` methods of `NestorClient`.
 
 Check the client implementation in [nestor-examples](https://github.com/nbonamy/nestor-examples).
 

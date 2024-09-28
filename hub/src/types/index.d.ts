@@ -25,6 +25,8 @@ export interface Service {
 
 export interface ServiceDirectory {
   services: Service[]
+  async add(name: string, host: string, port: number, path: string): Promise<void>
+  remove(name: string): void
 }
 
 declare global {

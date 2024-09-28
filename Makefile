@@ -1,21 +1,31 @@
 
-.PHONY: hub service client e2e install
+.PHONY: testhub testservice testclient teste2e install build client service
 
-test: hub service client e2e
+test: testhub testservice testclient teste2e
 
-hub:
+testhub:
 	cd hub && npm test -- --run
 
-service:
+testservice:
 	cd service && npm test -- --run
 
-client:
+testclient:
 	cd client && npm test -- --run
 
-e2e:
+teste2e:
 	./hub/node_modules/.bin/tsx tests/e2e.test.js
 
 install:
 	cd hub && npm install
 	cd service && npm install
 	cd client && npm install
+
+service:
+	cd service && npm run build
+
+client:
+	cd client && npm run build
+
+build: service client
+
+all: install build test

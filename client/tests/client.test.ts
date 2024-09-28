@@ -4,7 +4,6 @@ import { NestorClient } from '../src/index'
 import mdns from 'mdns'
 
 global.fetch = vi.fn((req) => {
-  if (req.includes('ping')) return { ok: true }
   if (req.includes('3000')) return { ok: true, json: () => [] }
   if (req.includes('3001')) return { ok: true, json: () => [ 1, 2, 3 ] }
   if (req.includes('3003')) throw new Error('not supposed to happen')
@@ -49,16 +48,29 @@ test('No hub connected', async () => {
   expect(await client.list()).toStrictEqual([])
   expect(global.fetch).not.toHaveBeenCalled()
   expect(client.logger).toStrictEqual(console)
+  client.stop()
+  expect(client.browser).toBeUndefined()
 })
 
-test('Hub connection', async() => {
+test('Automatic connection', async() => {
   const client = new NestorClient({ logger: logger })
   const hub = new HubMock()
   hub.start(3000)
   await vi.waitUntil(() => client.hubs.length > 0, 5000)
-  await vi.waitUntil(() => client.hubs[0].tools !== null, 5000)
   hub.stop()
   await vi.waitUntil(() => client.hubs.length === 0, 5000)
+})
+
+test('Manual connection', async() => {
+  const client = new NestorClient({ logger: logger, autostart: false })
+  const hub = new HubMock()
+  hub.start(3000)
+  expect(client.hubs.length).toBe(0)
+  await client.connect('localhost', 3000)
+  await vi.waitUntil(() => client.hubs.length > 0, 5000)
+  await client.disconnect('localhost', 3000)
+  await vi.waitUntil(() => client.hubs.length === 0, 5000)
+  hub.stop()
 })
 
 test('Empty hub', async () => {
@@ -67,11 +79,11 @@ test('Empty hub', async () => {
   hub.start(3000)
   await vi.waitUntil(() => client.hubs.length > 0, 5000)
   await vi.waitUntil(() => client.hubs[0].tools !== null, 5000)
-  expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3000\/toolbox\/openai/))
+  expect(global.fetch).not.toHaveBeenCalledWith(expect.stringMatching(/3000\/toolbox\/openai/))
   expect(logger.log).toHaveBeenCalled()
   expect(client.hubs.length).toBe(1)
   const list = await client.list()
-  expect(global.fetch).toHaveBeenLastCalledWith(expect.stringMatching(/3000\/ping/))
+  expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3000\/toolbox\/openai/))
   expect(list).toStrictEqual([])
   hub.stop()
 })
@@ -82,11 +94,12 @@ test('Hub and different format', async () => {
   hub.start(3001)
   await vi.waitUntil(() => client.hubs.length > 0, 5000)
   await vi.waitUntil(() => client.hubs[0].tools !== null, 5000)
-  expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3001\/toolbox\/anthropic/))
+  expect(global.fetch).not.toHaveBeenCalledWith(expect.stringMatching(/3001\/toolbox\/anthropic/))
   expect(client.hubs.length).toBe(1)
-  expect(client.hubs[0].tools).toStrictEqual([1, 2, 3])
+  expect(client.hubs[0].tools).toBeUndefined()
   const list = await client.list()
-  expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3001\/ping/))
+  expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3001\/toolbox\/anthropic/))
+  expect(client.hubs[0].tools).toStrictEqual([1, 2, 3])
   expect(list).toStrictEqual([1, 2, 3])
   hub.stop()
 })
@@ -95,9 +108,11 @@ test('Hub in error', async () => {
   const client = new NestorClient({ logger: logger })
   const hub = new HubMock()
   hub.start(3003)
-  await vi.waitUntil(() => global.fetch.mock.calls.length, 5000)
+  await vi.waitUntil(() => client.hubs.length > 0, 5000)
+  await client.list()
   expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3003\/toolbox/))
-  expect(client.hubs.length).toBe(0)
+  expect(client.hubs.length).toBe(1)
+  expect(client.hubs[0].tools).toBeUndefined()
   expect(logger.error).toHaveBeenCalled()
   hub.stop()
 })
@@ -111,13 +126,12 @@ test('Unkown tool', async () => {
   await expect((async () => { await client.call('not found', {})})()).rejects.toThrowError(/not found/)
 })
 
-
 test('Calls tool', async () => {
   const client = new NestorClient({ logger: null })
   const hub = new HubMock()
   hub.start(3002)
   await vi.waitUntil(() => client.hubs.length > 0, 5000)
-  await vi.waitUntil(() => client.hubs[0].tools !== null, 5000)
+  await client.list()
   const response = await client.call('tool', { key: 'value' })
   expect(global.fetch).toHaveBeenLastCalledWith(expect.stringMatching(/3002\/tools\/tool/), {
     body: '{"key":"value"}',

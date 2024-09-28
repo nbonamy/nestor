@@ -64,6 +64,8 @@ app.use((req, res, next) => {
 // routes
 import toolsRouter from './routes/tools'
 import toolboxRouter from './routes/toolbox'
+import serviceRouter from './routes/service'
+app.use('/service', serviceRouter)
 app.use('/toolbox', toolboxRouter)
 app.use('/tools', toolsRouter)
 
