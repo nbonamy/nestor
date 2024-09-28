@@ -19,7 +19,7 @@ A typical Nestor architecture comprises of:
 
 ## Getting Started
 
-The simplest way to get started is to see Nestor in action using the example services and clients available in [nestor-examples](https://github.com/nbonamy/nestor-examples). You can watch a [demo video](https://youtu.be/qPjsabr4dfo) of Nestor.
+The simplest way to get started is to see Nestor in action using the example services and clients available in [nestor-examples](https://github.com/nbonamy/nestor-examples). You can watch a [demo video](https://youtu.be/qPjsabr4dfo) or [another one](https://www.youtube.com/watch?v=j9yR6rHlzUM) of Nestor.
 
 You will need four different terminal windows:
 
