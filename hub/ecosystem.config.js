@@ -2,7 +2,7 @@
 module.exports = {
   apps : [{
     name   : "nestor-hub",
-    script : "./dist/index.ts",
+    script : "./dist/index.mjs",
     watch: true,
 		watch_delay: 1000,
 		ignore_watch : ["config.yml*"],

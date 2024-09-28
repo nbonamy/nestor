@@ -14,7 +14,7 @@
     "lint": "npx eslint src/",
     "test": "npx vitest",
     "testui": "npx vitest --ui --coverage.enabled=true",
-    "pm2": "tsup ; pm2 start ecosystem.config.json --env production ; pm2 save"
+    "pm2": "npm run build && pm2 start ecosystem.config.js --env production ; pm2 save"
   },
   "author": "nicolas@bonamy.fr",
   "license": "Apache-2.0",
