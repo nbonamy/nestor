@@ -57,7 +57,8 @@ export default class ServiceDirectory {
     const url = `http://${service.host}:${service.port}${service.path}`
     try {
       const response = await fetch(url)
-      const endpoints: Endpoint[] = await response.json() as Endpoint[]
+      const json: any = await response.json()
+      const endpoints: Endpoint[] = json.endpoints as Endpoint[]
       service.endpoints = endpoints.map(e => {
         const id = slugify(`${service.name}-${e.name}`, { separator: '_', preserveCharacters: ['-'] })
         return { ...e, id }

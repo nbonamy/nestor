@@ -3,9 +3,9 @@ import { vi, test, expect } from 'vitest'
 import ServiceDirectory from '../../src/services/directory'
 
 global.fetch = vi.fn((req) => {
-  if (req.endsWith('/none')) return { json: () => [] }
-  if (req.endsWith('/single')) return { json: () => [{}]}
-  if (req.endsWith('/dual')) return { json: () => [{}, {}]}
+  if (req.endsWith('/none')) return { json: () => { return { endpoints: [] } } }
+  if (req.endsWith('/single')) return { json: () => { return { endpoints: [{}]} } }
+  if (req.endsWith('/dual')) return { json: () => { return { endpoints: [{}, {}]} } }
   if (req === '/error') throw new Error('error')
 })
 

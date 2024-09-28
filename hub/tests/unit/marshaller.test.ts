@@ -4,20 +4,20 @@ import Marshaller from '../../src/services/marshaller'
 import ServiceDirectory from '../../src/services/directory'
 
 global.fetch = vi.fn((req) => {
-  if (req === 'http://host1:123/list') return { json: () => { return [{
+  if (req === 'http://host1:123/list') return { json: () => { return { endpoints: [{
       description: 'description1',
       url: 'url1',
       parameters: [
         { name: 'name1', type: 'string', description: 'description11', required: true },
         { name: 'name2', type: 'string', description: 'description12', required: false }
       ]
-    }]
+    }]}
   }}
-  if (req === 'http://host2:123/list') return { json: () => { return [{
+  if (req === 'http://host2:123/list') return { json: () => { return { endpoints: [{
       description: 'description2',
       url: 'url2',
       parameters: []
-    }]
+    }]}
   }}
 })
 
