@@ -1,5 +1,5 @@
 # .github/workflows/test.yml
-name: Tests
+name: Test Nestor
 on:
   push:
 jobs:
@@ -12,21 +12,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install Hub Dependencies
-        working-directory: ./hub
-        run: npm i
-      - name: Run Hub tests
-        working-directory: ./hub
-        run: npm test
-      - name: Install Client Dependencies
-        working-directory: ./client
-        run: npm i
-      - name: Run Client tests
-        working-directory: ./client
-        run: npm test
-      - name: Install Service Dependencies
-        working-directory: ./service
-        run: npm i
-      - name: Run Service tests
-        working-directory: ./service
-        run: npm test
+      - name: Install Dependencies
+        run: make install
+      - name: Run tests
+        run: make test
