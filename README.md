@@ -78,6 +78,7 @@ The URL path that lists all API should return a list of API, each described by:
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
+| `name` | string | Name of your API. This must be unique in your service. |
 | `description` | string | The description of your API as it will be provided to the LLM. Remember that the LLM decision to call or not your API will be based on that description!|
 | `url` | string | The full URL of your API including host and port. See the examples how to automatically build this from Express Request object|
 | `parameters` | Array | List of parameters required to call your API. Check table below for the parameters attributes|

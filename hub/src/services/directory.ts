@@ -1,5 +1,5 @@
 
-import { v4 as uuidv4 } from 'uuid'
+import slugify from '@sindresorhus/slugify'
 
 export interface Parameter {
   name: string
@@ -10,7 +10,7 @@ export interface Parameter {
 
 export interface Endpoint {
   id: string
-  //name: string
+  name: string
   description: string
   url: string
   method: 'GET'|'POST'|'PUT'|'DELETE'
@@ -40,9 +40,9 @@ export default class ServiceDirectory {
       service.host = host
       service.port = port
       service.path = path
-      service.endpoints = []
+      //service.endpoints = []
     } else {
-      service = { name, host, port, path, endpoints:[] }
+      service = { name, host, port, path, endpoints: [] }
       this.services.push(service)
     }
     await this.fetchEnpoints(service)
@@ -58,7 +58,10 @@ export default class ServiceDirectory {
     try {
       const response = await fetch(url)
       const endpoints: Endpoint[] = await response.json() as Endpoint[]
-      service.endpoints = endpoints.map(e => { return { ...e, id: uuidv4() } })
+      service.endpoints = endpoints.map(e => {
+        const id = slugify(`${service.name}-${e.name}`, { separator: '_', preserveCharacters: ['-'] })
+        return { ...e, id }
+      })
       this.status()
     } catch (err) {
       console.error(`Error while fetching endpoints at ${url}`, err)
