@@ -1,7 +1,7 @@
 
 import { vi, test, expect } from 'vitest'
 import supertest from 'supertest'
-import app from '../../src/server'
+import { app } from '../../src/server'
 
 global.fetch = vi.fn((req) => {
   const path = req.split('?')[0]

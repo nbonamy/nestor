@@ -1,8 +1,7 @@
 
 import portfinder from 'portfinder'
 import { program, InvalidArgumentError } from 'commander'
-import * as mdns from 'mdns'
-import app from './server'
+import { startHub } from './server'
 
 // parseInt does not work directly in commander
 function commanderParseInt(value: string) {
@@ -30,19 +29,6 @@ portfinder.getPort({ port: options.port }, (err, port) => {
     process.exit(1)
   }
   
-  app.listen(port, () => {
-    
-    console.log(`Nestor Hub is listening at http://localhost:${port}`)
-
-    // subtype is not consistently supported so using txtRecord too
-    const ad = mdns.createAdvertisement(mdns.tcp('nestor', 'hub'), port, {
-      name: options.name,
-      txtRecord: {
-        type: 'hub',
-      }
-    })
-    ad.start()
-
-  })
+  startHub(options.name, port)
 
 })

@@ -29,7 +29,7 @@ discoveryService.start((service: mdns.Service) => {
 })
 
 // init
-const app: Express = express()
+export const app: Express = express()
 
 // logging
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms', {
@@ -72,5 +72,22 @@ app.use(function(req, res) {
   res.status(404).send({url: `"${req.originalUrl}" not found`})
 })
 
-// done
-export default app
+// help
+export const startHub = (name: string, port: number) => {
+
+  app.listen(port, () => {
+    
+    console.log(`Nestor Hub is listening at http://localhost:${port}`)
+
+    // subtype is not consistently supported so using txtRecord too
+    const ad = mdns.createAdvertisement(mdns.tcp('nestor', 'hub'), port, {
+      name: name,
+      txtRecord: {
+        type: 'hub',
+      }
+    })
+    ad.start()
+
+  })
+
+}
