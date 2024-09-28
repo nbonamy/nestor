@@ -67,20 +67,21 @@ The hub automatically broadcasts its presence on the network to be discoverable 
 
 Implementing a service is pretty straightforward:
 - Add `@nestor/service` as a new dependency
-- Import/require NestorService in your application
-- Instantiate a new NestorService instance by prodiving:
+- Import/require `NestorService` in your application
+- Instantiate a new `NestorService` instance by prodiving:
   - A unique name for your service
   - The port number your service runs on
   - The URL path that lists all the API of your service
 - Start the service: it should auto-discover the hub and register to it
 
-The URL path that lists all API should return a list of API, each described by:
+The URL path that lists all API should return a list of API endpoints in the format `{ endpoints: [...] }`, each endpoint being described by:
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `name` | string | Name of your API. This must be unique in your service. |
 | `description` | string | The description of your API as it will be provided to the LLM. Remember that the LLM decision to call or not your API will be based on that description!|
 | `url` | string | The full URL of your API including host and port. See the examples how to automatically build this from Express Request object|
+| `method` | string | The HTTP method to use. Defaults to GET. |
 | `parameters` | Array | List of parameters required to call your API. Check table below for the parameters attributes|
 
 Each parameter is described by:
@@ -99,9 +100,11 @@ Services can of course be implemented in any language. You can find an example o
 Implementing a client is even more straightforward if you already have a LLM-based agent. If not the implementation available in `nestor-examples` is pretty generic (except for the hard-coded prompt) and could be reused almost as-is:
 
 - Add `@nestor/client` as a new dependency
-- Import/require NestorClient in your application
-- Instantiate a new NestorClient
-- Provide the result of NestorClient.list() to the LLM call
+- Import/require `NestorClient` in your application
+- Instantiate a new `NestorClient`
+- Provide the result of `NestorClient.list()` to the LLM call
+
+Check the client implementation in [nestor-examples](https://github.com/nbonamy/nestor-examples).
 
 ## TODO
 
