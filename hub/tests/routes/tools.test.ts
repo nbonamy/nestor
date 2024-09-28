@@ -16,6 +16,7 @@ vi.mock('../../src/services/directory', () => {
       endpoints: [
         {
           id: 'id1',
+          name: 'name1',
           description: 'description1',
           url: 'url1',
           parameters:[
@@ -25,6 +26,7 @@ vi.mock('../../src/services/directory', () => {
         },
         {
           id: 'id2',
+          name: 'name2',
           description: 'description2',
           url: 'url2',
           parameters: []
