@@ -135,6 +135,7 @@ test('Unkown tool', async () => {
   await isConnected(client)
   await client.list()
   await expect((async () => { await client.call('not found', {})})()).rejects.toThrowError(/not found/)
+  hub.stop()
 })
 
 test('Calls tool', async () => {
