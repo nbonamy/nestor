@@ -115,7 +115,7 @@ Check the client implementation in [nestor-examples](https://github.com/nbonamy/
 - [x] Tests!
 - [x] Error handling (everywhere)
 - [x] Support more HTTP verbs for API calls
-- [x] Publish @nestor/* packages
+- [x] Publish ~~@nestor/*~~ nestor-* packages
 
 ## Suggestions
 
