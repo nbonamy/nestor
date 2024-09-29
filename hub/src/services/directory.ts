@@ -15,6 +15,7 @@ export default class ServiceDirectory {
   }
 
   async add(name: string, host: string, port: number, path: string): Promise<void> {
+    if (!path) return
     let service = this.services.find(s => s.name === name)
     if (service) {
       service.host = host

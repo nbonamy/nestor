@@ -27,10 +27,10 @@ export interface ToolboxResponse {
 
 export class NestorClient {
 
-  logger?: Logger|null
-  format: ToolsFormat
-  browser?: Bonjour.Browser
-  hubs: Hub[] = []
+  private logger?: Logger|null
+  private format: ToolsFormat
+  private browser?: Bonjour.Browser
+  private hubs: Hub[] = []
 
   constructor(opts?: NestorClientOptions) {
     

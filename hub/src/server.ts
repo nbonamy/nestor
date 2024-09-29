@@ -74,11 +74,31 @@ app.use(function(req, res) {
   res.status(404).send({url: `"${req.originalUrl}" not found`})
 })
 
+
+// shutdown
+let advertise: Bonjour.Service|null = null
+process.on('SIGINT', async () => {
+
+  // log
+  console.log('Shutting down Nestor hub')
+
+  // first stop advertising
+  const promise = new Promise<void>((resolve) => {
+    advertise?.stop(() => resolve())
+  })
+  await promise
+  
+  // done
+  process.exit(0)
+
+})
+
+// publish
 const publish = (baseName: string, port: number, index: number) => {
   
   const name = index == 0 ? baseName : `${baseName} (${index})`
 
-  const ad = Bonjour().publish({
+  advertise = Bonjour().publish({
     name: name,
     type: 'nestor',
     subtypes: [ 'hub' ],
@@ -88,7 +108,7 @@ const publish = (baseName: string, port: number, index: number) => {
     }
     })
 
-  ad.on('error', (error) => {
+    advertise.on('error', (error) => {
     if (error.message === 'Service name is already in use on the network') {
       publish(baseName, port, index + 1)
     } else {
@@ -96,23 +116,18 @@ const publish = (baseName: string, port: number, index: number) => {
     }
   })
 
-  ad.on('up', () => {
+  advertise.on('up', () => {
     console.log(`Hub published as "${name}" on network`)
   })
 
-  ad.start()
+  advertise.start()
 
 }
 
 // help
 export const startHub = (name: string, port: number) => {
-
   app.listen(port, () => {
-    
     console.log(`Nestor Hub is listening at http://localhost:${port}`)
-
     publish(name, port, 0)
-
   })
-
 }
