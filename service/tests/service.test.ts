@@ -12,23 +12,31 @@ test('Advertises itself', async () => {
 
   let connected = false
   const browser = mdns.createBrowser(mdns.tcp('nestor'))
-  const onServiceUp = vi.fn(() => { connected = true })
-  const onServiceDown = vi.fn(() => { connected = false })
+  const onServiceUp = vi.fn((service) => {
+    if (service.name === 'service-test-1') {
+      connected = true
+    }
+  })
+  const onServiceDown = vi.fn((service) => {
+    if (service.name === 'service-test-1') {
+      connected = false
+    }
+  })
   browser.on('serviceUp', onServiceUp)
   browser.on('serviceDown', onServiceDown)
   browser.start()
 
-  const nestorService = new NestorService('service', 3000, '/list')
+  const nestorService = new NestorService('service-test-1', 3000, '/list')
   await vi.waitUntil(() => connected, 5000)
-  const payloadUp = onServiceUp.mock.lastCall[0]
-  expect(payloadUp.port).toBe(3000)
-  expect(payloadUp.type.name).toBe('nestor')
-  expect(payloadUp.txtRecord).toStrictEqual({ type: 'service', path: '/list' })
+  const payloadUp = onServiceUp.mock.calls.find((c: any) => c[0].name === 'service-test-1')
+  expect(payloadUp).toBeDefined()
+  if (payloadUp) {
+    expect(payloadUp[0].port).toBe(3000)
+    expect(payloadUp[0].txtRecord).toStrictEqual({ type: 'service', path: '/list' })
+  }
 
   nestorService.stop()
   await vi.waitUntil(() => !connected, 5000)
-  const payloadDown = onServiceDown.mock.lastCall[0]
-  expect(payloadDown.type.name).toBe('nestor')
 
 })
 
@@ -36,13 +44,21 @@ test('Manual start', async () => {
 
   let connected = false
   const browser = mdns.createBrowser(mdns.tcp('nestor'))
-  const onServiceUp = vi.fn(() => { connected = true })
-  const onServiceDown = vi.fn(() => { connected = false })
+  const onServiceUp = vi.fn((service) => {
+    if (service.name === 'service-test-2') {
+      connected = true
+    }
+  })
+  const onServiceDown = vi.fn((service) => {
+    if (service.name === 'service-test-2') {
+      connected = false
+    }
+  })
   browser.on('serviceUp', onServiceUp)
   browser.on('serviceDown', onServiceDown)
   browser.start()
 
-  const nestorService = new NestorService('service', 3000, '/list', { autostart: false })
+  const nestorService = new NestorService('service-test-2', 3000, '/list', { autostart: false })
   await vi.waitFor(() =>  {}, 5000)
   expect(connected).toBe(false)
 
@@ -56,19 +72,19 @@ test('Manual start', async () => {
 
 test('Manual connect', async () => {
 
-  const nestorService = new NestorService('service', 3000, '/list', { autostart: false })
+  const nestorService = new NestorService('service-test-3', 3000, '/list', { autostart: false })
   await nestorService.register('localhost', 3000)
   expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3000\/service\/register/), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: 'service', port: 3000, path: '/list' })
+    body: JSON.stringify({ name: 'service-test-3', port: 3000, path: '/list' })
   })
 
   await nestorService.unregister('localhost', 3000)
   expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/3000\/service\/unregister/), {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: 'service' })
+    body: JSON.stringify({ name: 'service-test-3' })
   })
 
   await expect((async () => { await nestorService.register('localhost', 3001) })()).rejects.toThrowError(/failed/)

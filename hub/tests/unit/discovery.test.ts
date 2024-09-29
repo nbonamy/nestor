@@ -9,7 +9,7 @@ class ServiceMock {
   ad: any
   start(port: number) {
     this.ad = mdns.createAdvertisement(mdns.tcp('nestor', 'service'), port, {
-      name: 'Nestor Service',
+      name: 'service-test-1',
       txtRecord: {
         type: 'service',
       }
@@ -29,8 +29,16 @@ test('creates browser', async () => {
 
 test('calls callbacks', async () => {
   let count = 0
-  const onUp = vi.fn(() => { count = count + 1 })
-  const onDown = vi.fn(() => { count = count - 1 })
+  const onUp = vi.fn((service) => {
+    if (service.name === 'service-test-1') {
+      count = count + 1
+    }
+  })
+  const onDown = vi.fn((service) => {
+    if (service.name === 'service-test-1') {
+      count = count - 1
+    }
+  })
   const discovery = new ServiceDiscovery()
   discovery.start(onUp, onDown)
   const serviceMock = new ServiceMock()

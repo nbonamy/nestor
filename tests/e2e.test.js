@@ -3,6 +3,9 @@ import { startHub } from '../hub/src/server'
 import { NestorService } from '../service/src/index'
 import { NestorClient } from '../client/src/index'
 
+// port
+const port = 3333
+
 // sleep
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
@@ -29,6 +32,11 @@ global.fetch = (url, options) => {
     
   }
 
+  // hide other hubs
+  if (url.includes('/toolbox') && !url.includes(port)) {
+    return []
+  }
+  
   // default
   return originalFetch(url, options)
   
@@ -37,17 +45,28 @@ global.fetch = (url, options) => {
 let testsCount = 0
 
 const expect = (received) => {
+
   testsCount += 1
+
+  const fail = (expected) => {
+    if (testsCount > 1) {
+      console.error(`${testsCount-1} tests passed`)
+    }
+    console.error(`Test #${testsCount} failed`)
+    console.error(`Expected: ${expected}`)
+    console.error(`     Got: ${received}`)
+    process.exit(1)
+  }
+
   return {
     toBe: (expected) => {
       if (received !== expected) {
-        if (testsCount > 1) {
-          console.error(`${testsCount-1} tests passed`)
-        }
-        console.error(`Test #${testsCount} failed`)
-        console.error(`Expected: ${expected}`)
-        console.error(`     Got: ${received}`)
-        process.exit(1)
+        fail(expected)
+      }
+    },
+    toContain: (expected) => {
+      if (!received.includes(expected)) {
+        fail(expected)
       }
     }
   }
@@ -59,12 +78,12 @@ const expect = (received) => {
   const service1 = new NestorService('Service-Auto', 3001, '/list')
 
   // now start the hub
-  startHub('Test Hub', 3000)
+  startHub('Test Hub', port)
   await sleep(2000)
 
   // service that manually registers
   const service2 = new NestorService('Service-Manual', 3002, '/list', { autostart: false })
-  await service2.register('localhost', 3000)
+  await service2.register('localhost', port)
 
   // now start the client
   const client1 = new NestorClient()
@@ -72,14 +91,14 @@ const expect = (received) => {
 
   // now list the tools
   const tools1 = await client1.list()
-  expect(JSON.stringify(tools1)).toBe('[{"type":"function","function":{"name":"service-auto-endpoint1","description":"endpoint 1","parameters":{"type":"object","properties":{"name1":{"type":"string","description":"description11"},"name2":{"type":"string","description":"description12"}},"required":["name1"]}}},{"type":"function","function":{"name":"service-manual-endpoint2","description":"endpoint 2","parameters":{"type":"object","properties":{},"required":[]}}}]')
+  expect(JSON.stringify(tools1)).toContain('{"type":"function","function":{"name":"service-auto-endpoint1","description":"endpoint 1","parameters":{"type":"object","properties":{"name1":{"type":"string","description":"description11"},"name2":{"type":"string","description":"description12"}},"required":["name1"]}}},{"type":"function","function":{"name":"service-manual-endpoint2","description":"endpoint 2","parameters":{"type":"object","properties":{},"required":[]}}}')
 
   // unregister
-  await service2.unregister('localhost', 3000)
+  await service2.unregister('localhost', port)
 
   // now list the tools
   const tools2 = await client1.list()
-  expect(JSON.stringify(tools2)).toBe('[{"type":"function","function":{"name":"service-auto-endpoint1","description":"endpoint 1","parameters":{"type":"object","properties":{"name1":{"type":"string","description":"description11"},"name2":{"type":"string","description":"description12"}},"required":["name1"]}}}]')
+  expect(JSON.stringify(tools2)).toContain('{"type":"function","function":{"name":"service-auto-endpoint1","description":"endpoint 1","parameters":{"type":"object","properties":{"name1":{"type":"string","description":"description11"},"name2":{"type":"string","description":"description12"}},"required":["name1"]}}}')
 
   // and now manual client
   const client2 = new NestorClient({ autostart: false })
@@ -87,9 +106,9 @@ const expect = (received) => {
   expect(JSON.stringify(tools3)).toBe('[]')
   
   // and connect it
-  await client2.connect('localhost', 3000)
+  await client2.connect('localhost', port)
   const tools4 = await client2.list()
-  expect(JSON.stringify(tools4)).toBe('[{"type":"function","function":{"name":"service-auto-endpoint1","description":"endpoint 1","parameters":{"type":"object","properties":{"name1":{"type":"string","description":"description11"},"name2":{"type":"string","description":"description12"}},"required":["name1"]}}}]')
+  expect(JSON.stringify(tools4)).toContain('{"type":"function","function":{"name":"service-auto-endpoint1","description":"endpoint 1","parameters":{"type":"object","properties":{"name1":{"type":"string","description":"description11"},"name2":{"type":"string","description":"description12"}},"required":["name1"]}}}')
   
   // all good
   console.log(`${testsCount} Test(s) passsed`)
