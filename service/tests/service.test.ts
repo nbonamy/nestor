@@ -1,7 +1,7 @@
 
 import { vi, test, expect } from 'vitest'
 import { NestorService } from '../src/index'
-import mdns from 'mdns'
+import Bonjour from 'bonjour'
 
 global.fetch = vi.fn((req) => {
   if (req.includes('3000'))  return { ok: true }
@@ -11,7 +11,7 @@ global.fetch = vi.fn((req) => {
 test('Advertises itself', async () => {
 
   let connected = false
-  const browser = mdns.createBrowser(mdns.tcp('nestor'))
+  const browser = Bonjour().find({ type: 'nestor' })
   const onServiceUp = vi.fn((service) => {
     if (service.name === 'service-test-1') {
       connected = true
@@ -22,8 +22,8 @@ test('Advertises itself', async () => {
       connected = false
     }
   })
-  browser.on('serviceUp', onServiceUp)
-  browser.on('serviceDown', onServiceDown)
+  browser.on('up', onServiceUp)
+  browser.on('down', onServiceDown)
   browser.start()
 
   const nestorService = new NestorService('service-test-1', 3000, '/list')
@@ -32,7 +32,7 @@ test('Advertises itself', async () => {
   expect(payloadUp).toBeDefined()
   if (payloadUp) {
     expect(payloadUp[0].port).toBe(3000)
-    expect(payloadUp[0].txtRecord).toStrictEqual({ type: 'service', path: '/list' })
+    expect(payloadUp[0].txt).toStrictEqual({ type: 'service', path: '/list' })
   }
 
   nestorService.stop()
@@ -43,7 +43,7 @@ test('Advertises itself', async () => {
 test('Manual start', async () => {
 
   let connected = false
-  const browser = mdns.createBrowser(mdns.tcp('nestor'))
+  const browser = Bonjour().find({ type: 'nestor' })
   const onServiceUp = vi.fn((service) => {
     if (service.name === 'service-test-2') {
       connected = true
@@ -54,8 +54,8 @@ test('Manual start', async () => {
       connected = false
     }
   })
-  browser.on('serviceUp', onServiceUp)
-  browser.on('serviceDown', onServiceDown)
+  browser.on('up', onServiceUp)
+  browser.on('down', onServiceDown)
   browser.start()
 
   const nestorService = new NestorService('service-test-2', 3000, '/list', { autostart: false })

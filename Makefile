@@ -1,5 +1,5 @@
 
-.PHONY: testhub testservice testclient teste2e install build hub client service
+.PHONY: testhub testservice testclient teste2e install build hub client service publish
 
 test: testhub testservice testclient teste2e
 
@@ -32,3 +32,8 @@ client:
 build: hub service client
 
 all: install build test
+
+publish: build
+	cd hub && npm publish
+	cd service && npm publish
+	cd client && npm publish

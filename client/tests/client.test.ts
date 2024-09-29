@@ -1,7 +1,7 @@
 
 import { vi, test, expect, beforeEach } from 'vitest'
 import { NestorClient } from '../src/index'
-import mdns from 'mdns'
+import Bonjour from 'bonjour'
 
 global.fetch = vi.fn((req) => {
   if (req.includes('6000')) return { ok: true, json: () => { return { tools:[] } } }
@@ -27,11 +27,16 @@ const logger = {
 
 class HubMock {
   ad: any
+  
+  // subtype is not consistently supported so using txt.type too
   start(port: number) {
-    this.ad = mdns.createAdvertisement(mdns.tcp('nestor', 'hub'), port, {
+    this.ad = Bonjour().publish({
       name: 'hub-test-1',
-      txtRecord: {
-        type: 'hub',
+      type: 'nestor',
+      subtypes: [ 'hub' ],
+      port: port,
+      txt: {
+        'type': 'hub',
       }
     })
     this.ad.start()

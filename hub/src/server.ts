@@ -3,7 +3,7 @@ import express, { Express } from 'express'
 import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import * as mdns from 'mdns'
+import Bonjour from 'bonjour'
 import cors from 'cors'
 
 // load config
@@ -18,11 +18,11 @@ import DiscoveryService from './services/discovery'
 // start discovery immediately
 const serviceDirectory = new ServiceDirectory()
 const discoveryService = new DiscoveryService()
-discoveryService.start((service: mdns.Service) => {
-  if (service.name) {
-    serviceDirectory.add(service.name, service.host, service.port, service.txtRecord.path)
+discoveryService.start((service: Bonjour.RemoteService) => {
+  if (service.name && (service.subtypes.includes('service') || service.txt.type === 'service')) {
+    serviceDirectory.add(service.name, service.host, service.port, service.txt.path)
   }
-}, (service: mdns.Service) => {
+}, (service: Bonjour.Service) => {
   if (service.name) {
     serviceDirectory.remove(service.name)
   }
@@ -74,6 +74,36 @@ app.use(function(req, res) {
   res.status(404).send({url: `"${req.originalUrl}" not found`})
 })
 
+const publish = (baseName: string, port: number, index: number) => {
+  
+  const name = index == 0 ? baseName : `${baseName} (${index})`
+
+  const ad = Bonjour().publish({
+    name: name,
+    type: 'nestor',
+    subtypes: [ 'hub' ],
+    port: port,
+    txt: {
+      type: 'hub',
+    }
+    })
+
+  ad.on('error', (error) => {
+    if (error.message === 'Service name is already in use on the network') {
+      publish(baseName, port, index + 1)
+    } else {
+      throw error
+    }
+  })
+
+  ad.on('up', () => {
+    console.log(`Hub published as "${name}" on network`)
+  })
+
+  ad.start()
+
+}
+
 // help
 export const startHub = (name: string, port: number) => {
 
@@ -81,14 +111,7 @@ export const startHub = (name: string, port: number) => {
     
     console.log(`Nestor Hub is listening at http://localhost:${port}`)
 
-    // subtype is not consistently supported so using txtRecord too
-    const ad = mdns.createAdvertisement(mdns.tcp('nestor', 'hub'), port, {
-      name: name,
-      txtRecord: {
-        type: 'hub',
-      }
-    })
-    ad.start()
+    publish(name, port, 0)
 
   })
 

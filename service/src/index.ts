@@ -1,5 +1,5 @@
 
-import * as mdns from 'mdns'
+import Bonjour from 'bonjour'
 
 export interface NestorServiceOptions {
   autostart?: boolean
@@ -10,7 +10,7 @@ export class NestorService {
   name: string
   port: number
   path: string
-  advertise: mdns.Advertisement
+  advertise?: Bonjour.Service
 
   constructor(name: string, port: number, path: string, opts?: NestorServiceOptions) {
 
@@ -26,10 +26,14 @@ export class NestorService {
   }
 
   start(): void {
-    // subtype is not consistently supported so using txtRecord too
-    this.advertise = mdns.createAdvertisement(mdns.tcp('nestor', 'service'), this.port, {
+
+    // subtype is not consistently supported so using txt.type too
+    this.advertise = Bonjour().publish({
       name: this.name,
-      txtRecord: {
+      type: 'nestor',
+      subtypes: [ 'service' ],
+      port: this.port,
+      txt: {
         type: 'service',
         path: this.path,
       }
@@ -38,7 +42,7 @@ export class NestorService {
   }
 
   stop(): void {
-    this.advertise.stop()
+    this.advertise?.stop()
   }
 
   async register(host: string, port: number): Promise<void> {

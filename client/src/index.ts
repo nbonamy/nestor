@@ -1,5 +1,5 @@
 
-import * as mdns from 'mdns'
+import Bonjour from 'bonjour'
 
 export type ToolsFormat = 'openai'
 
@@ -21,11 +21,15 @@ export interface NestorClientOptions {
   autostart?: boolean
 }
 
+export interface ToolboxResponse {
+  tools: any[]
+}
+
 export class NestorClient {
 
   logger?: Logger|null
   format: ToolsFormat
-  browser?: mdns.Browser
+  browser?: Bonjour.Browser
   hubs: Hub[] = []
 
   constructor(opts?: NestorClientOptions) {
@@ -49,24 +53,18 @@ export class NestorClient {
   start(): void {
     
     // now start the browser
-    // getaddr fails: https://stackoverflow.com/questions/29589543/raspberry-pi-mdns-getaddrinfo-3008-error
-    this.browser = mdns.createBrowser(mdns.tcp('nestor'), { resolverSequence: [
-      mdns.rst.DNSServiceResolve(),
-      'DNSServiceGetAddrInfo' in mdns.dns_sd ? mdns.rst.DNSServiceGetAddrInfo() : mdns.rst.getaddrinfo({families:[4]}),
-      mdns.rst.makeAddressesUnique()
-    ]})
-    this.browser.on('serviceUp', service => {
-      const txtRecord = service.txtRecord
-      if (txtRecord && txtRecord.type === 'hub') {
+    this.browser = Bonjour().find({ type: 'nestor' })
+    this.browser.on('up', (service) => {
+      if (service.subtypes.includes('hub') || service.txt.type === 'hub') {
         this.add(service)
       }
-    });
-    this.browser.on('serviceDown', service => {
+    })
+    this.browser.on('down', (service) => {
       if (service.name) {
         this.remove(service.name)
       }
-    });
-    this.browser.start();
+    })
+    this.browser.start()
 
   }
 
@@ -109,7 +107,7 @@ export class NestorClient {
     return await response.json()
   }
 
-  private add(service: mdns.Service) {
+  private add(service: Bonjour.RemoteService) {
     this.logger?.log(`Hub found at ${service.host}:${service.port}`)
     if (service.name) {
       this.remove(service.name)
@@ -128,7 +126,7 @@ export class NestorClient {
       const url = `http://${hub.host}:${hub.port}/toolbox/${this.format}`
       const response = await fetch(url)
       if (response.ok) {
-        const toolbox = await response.json()
+        const toolbox: ToolboxResponse = await response.json() as ToolboxResponse
         this.logger?.log(`Fetched toolbox at ${url}`)
         hub.tools = toolbox.tools
       }
