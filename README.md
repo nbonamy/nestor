@@ -66,7 +66,7 @@ The hub automatically broadcasts its presence on the network to be discoverable 
 ## Service implementation
 
 Implementing a service is pretty straightforward:
-- Add `@nestor/service` as a new dependency
+- Add `nestor-service` as a new dependency
 - Import/require `NestorService` in your application
 - Instantiate a new `NestorService` instance by prodiving:
   - A unique name for your service
@@ -101,7 +101,7 @@ Services can of course be implemented in any language. You can find an example o
 
 Implementing a client is even more straightforward if you already have a LLM-based agent. If not the implementation available in `nestor-examples` is pretty generic (except for the hard-coded prompt) and could be reused almost as-is:
 
-- Add `@nestor/client` as a new dependency
+- Add `nestor-client` as a new dependency
 - Import/require `NestorClient` in your application
 - Instantiate a new `NestorClient`
 - Provide the result of `NestorClient.list()` to the LLM call
@@ -112,10 +112,10 @@ Check the client implementation in [nestor-examples](https://github.com/nbonamy/
 
 ## TODO
 
-- [ ] Publish @nestor/* packages
-- [X] Error handling (everywhere)
-- [X] Tests!
+- [x] Tests!
+- [x] Error handling (everywhere)
 - [x] Support more HTTP verbs for API calls
+- [x] Publish @nestor/* packages
 
 ## Suggestions
 
