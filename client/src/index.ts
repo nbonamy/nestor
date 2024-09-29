@@ -130,7 +130,7 @@ export class NestorClient {
       if (response.ok) {
         const toolbox = await response.json()
         this.logger?.log(`Fetched toolbox at ${url}`)
-        hub.tools = toolbox
+        hub.tools = toolbox.tools
       }
     } catch (err) {
       this.logger?.error(`Error while fetching tools from hub ${hub.name}`, err)

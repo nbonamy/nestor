@@ -10,7 +10,7 @@ router.get(['/', '/:format'], (req, res) => {
 
     const marshaller = new Marshaller()
     if (req.params.format === undefined || req.params.format === 'openai') {
-      res.json(marshaller.toOpenAI(req.serviceDirectory))
+      res.json({ tools: marshaller.toOpenAI(req.serviceDirectory) })
     } else {
       res.status(400).send({ error: 'invalid format' })
     }

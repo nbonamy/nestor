@@ -4,20 +4,20 @@ import { NestorClient } from '../src/index'
 import mdns from 'mdns'
 
 global.fetch = vi.fn((req) => {
-  if (req.includes('6000')) return { ok: true, json: () => [] }
-  if (req.includes('6001')) return { ok: true, json: () => [ 1, 2, 3 ] }
+  if (req.includes('6000')) return { ok: true, json: () => { return { tools:[] } } }
+  if (req.includes('6001')) return { ok: true, json: () => { return { tools:[ 1, 2, 3 ] } } }
   if (req.includes('6003')) throw new Error('not supposed to happen')
   if (req.includes('6002')) {
     if (req.includes('toolbox')) {
-      return { ok: true, json: () => [ 
-        { function: { name: 'tool', url: 'localhost:3004'}}
-      ]}
+      return { ok: true, json: () => { return { tools: [ 
+        { function: { name: 'tool', url: 'localhost:3004'} }
+      ]}}}
     } else {
       return { ok: true, json: () => { return { result: 'ok' }}}
     }
   }
   // assuming other ports are real hubs
-  return { ok: true, json: () => [] }
+  return { ok: true, json: () => { return { tools: [] } } }
 })
 
 const logger = {
