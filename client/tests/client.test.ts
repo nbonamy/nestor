@@ -141,7 +141,7 @@ test('Unkown tool', async () => {
 test('Calls tool', async () => {
   const client = new NestorClient({ logger: null })
   const hub = new HubMock()
-  hub.start(3002)
+  hub.start(6002)
   await isConnected(client)
   await client.list()
   const response = await client.call('tool', { key: 'value' })
