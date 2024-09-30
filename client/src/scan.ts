@@ -1,7 +1,7 @@
  
  import { NestorClient } from './index'
 
- const sleep = ms => new Promise(res => setTimeout(res, ms));
+ const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
 
  (async () => {
 
@@ -9,8 +9,9 @@
   await sleep(1000)
 
   // show hubs
-  console.log(`Found ${client.hubs.length} hub(s)`)
-  for (const hub of client.hubs) {
+  const status = await client.status()
+  console.log(`Found ${status.hubs.length} hub(s)`)
+  for (const hub of status.hubs) {
     console.log(`  - ${hub.name} @ ${hub.host}:${hub.port}`)
   }
 
