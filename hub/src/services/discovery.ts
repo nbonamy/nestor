@@ -8,10 +8,10 @@ export default class DiscoveryService {
   start(onUp: CallableFunction, onDown: CallableFunction) {
 
     this.browser = Bonjour().find({ type: 'nestor' })
-    this.browser.on('up', (service: any) => {
+    this.browser.on('up', (service: Bonjour.RemoteService) => {
       onUp(service)
     })
-    this.browser.on('down', (service: any) => {
+    this.browser.on('down', (service: Bonjour.RemoteService) => {
       onDown(service)
     })
     this.browser.start()
@@ -19,7 +19,7 @@ export default class DiscoveryService {
   }
 
   stop() {
-    this.browser?.stop
+    this.browser?.stop()
   }
 
 }
