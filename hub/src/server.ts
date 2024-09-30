@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import Bonjour from 'bonjour'
 import cors from 'cors'
+import path from 'path'
 
 // load config
 import dotenv from 'dotenv'
@@ -62,18 +63,17 @@ app.use((req, res, next) => {
 })
 
 // routes
+import adminRouter from './routes/admin'
 import toolsRouter from './routes/tools'
 import toolboxRouter from './routes/toolbox'
 import serviceRouter from './routes/service'
 app.use('/service', serviceRouter)
 app.use('/toolbox', toolboxRouter)
 app.use('/tools', toolsRouter)
+app.use('/admin', adminRouter)
 
-// not found middleware comes last
-app.use(function(req, res) {
-  res.status(404).send({url: `"${req.originalUrl}" not found`})
-})
-
+// static content
+app.use(express.static(path.join('src', 'public')))
 
 // shutdown
 let advertise: Bonjour.Service|null = null
