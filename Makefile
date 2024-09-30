@@ -21,13 +21,13 @@ install:
 	cd client && npm install
 
 hub:
-	cd hub && npm run build
+	cd hub && npm test -- --run && npm run lint && npm run build
 
 service:
-	cd service && npm run build
+	cd service && npm test -- --run && npm run lint && npm run build
 
 client:
-	cd client && npm run build
+	cd client && npm test -- --run && npm run lint && npm run build
 
 build: hub service client
 
