@@ -1,7 +1,7 @@
 
 import { vi, test, expect } from 'vitest'
 import { NestorService } from '../src/index'
-import { Bonjour } from 'bonjour-service'
+import * as mdns from 'mdns'
 
 global.fetch = vi.fn((req) => {
   if (req.includes('3000'))  return { ok: true }
@@ -11,8 +11,7 @@ global.fetch = vi.fn((req) => {
 test('Advertises itself', async () => {
 
   let connected = false
-  const bonjour = new Bonjour()
-  const browser = bonjour.find({ type: 'nestor' })
+  const browser = mdns.createBrowser(mdns.tcp('nestor'))
   const onServiceUp = vi.fn((service) => {
     if (service.name === 'service-test-1') {
       connected = true
@@ -23,29 +22,28 @@ test('Advertises itself', async () => {
       connected = false
     }
   })
-  browser.on('up', onServiceUp)
-  browser.on('down', onServiceDown)
+  browser.on('serviceUp', onServiceUp)
+  browser.on('serviceDown', onServiceDown)
   browser.start()
 
   const nestorService = new NestorService('service-test-1', 3000, '/list')
-  await vi.waitUntil(() => connected, 10000)
+  await vi.waitUntil(() => connected, 5000)
   const payloadUp = onServiceUp.mock.calls.find((c: any) => c[0].name === 'service-test-1')
   expect(payloadUp).toBeDefined()
   if (payloadUp) {
     expect(payloadUp[0].port).toBe(3000)
-    expect(payloadUp[0].txt).toStrictEqual({ type: 'service', path: '/list' })
+    expect(payloadUp[0].txtRecord).toStrictEqual({ type: 'service', path: '/list' })
   }
 
   nestorService.stop()
-  await vi.waitUntil(() => !connected, 10000)
+  await vi.waitUntil(() => !connected, 5000)
 
 })
 
 test('Manual start', async () => {
 
   let connected = false
-  const bonjour = new Bonjour()
-  const browser = bonjour.find({ type: 'nestor' })
+  const browser = mdns.createBrowser(mdns.tcp('nestor'))
   const onServiceUp = vi.fn((service) => {
     if (service.name === 'service-test-2') {
       connected = true
@@ -56,19 +54,19 @@ test('Manual start', async () => {
       connected = false
     }
   })
-  browser.on('up', onServiceUp)
-  browser.on('down', onServiceDown)
+  browser.on('serviceUp', onServiceUp)
+  browser.on('serviceDown', onServiceDown)
   browser.start()
 
   const nestorService = new NestorService('service-test-2', 3000, '/list', { autostart: false })
-  await vi.waitFor(() =>  {}, 10000)
+  await vi.waitFor(() =>  {}, 5000)
   expect(connected).toBe(false)
 
   await nestorService.start()
-  await vi.waitUntil(() => connected, 10000)
+  await vi.waitUntil(() => connected, 5000)
 
   nestorService.stop()
-  await vi.waitUntil(() => !connected, 10000)
+  await vi.waitUntil(() => !connected, 5000)
 
 })
 
