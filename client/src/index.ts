@@ -1,5 +1,5 @@
 
-import { Bonjour, Browser, Service } from 'bonjour-service'
+import Bonjour, { RemoteService } from 'bonjour'
 
 export type ToolsFormat = 'openai'
 
@@ -56,7 +56,7 @@ export class NestorClient {
   private logger?: Logger|null
   private format: ToolsFormat
   private cacheTtl: number
-  private browser?: Browser
+  private browser?: Bonjour.Browser
   private hubs: Hub[] = []
 
   constructor(opts?: NestorClientOptions) {
@@ -80,21 +80,20 @@ export class NestorClient {
 
   start(): void {
 
-    // we use bonjour-service and not mdns
+    // we use bonjour and not mdns
     // as mdns has platform dependencies
     // which makes it painful to embed in electron
     // and it seems to be fine enough for a client
     // despite seeming to be not as good as mdns
 
     // now start the browser
-    const bonjour = new Bonjour()
-    this.browser = bonjour.find({ type: 'nestor' })
-    this.browser.on('up', (service) => {
+    this.browser = Bonjour().find({ type: 'nestor' })
+    this.browser.on('up', (service: RemoteService) => {
       if (service.subtypes.includes('hub') || service.txt.type === 'hub') {
         this.add(service)
       }
     })
-    this.browser.on('down', (service) => {
+    this.browser.on('down', (service: RemoteService) => {
       if (service.name) {
         this.remove(service.name)
       }
@@ -152,7 +151,7 @@ export class NestorClient {
     return await response.json()
   }
 
-  private add(service: Service) {
+  private add(service: RemoteService) {
     if (!service.name) return
     let hub = this.hubs.find(hub => hub.name === service.name)
     if (hub) {
