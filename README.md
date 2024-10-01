@@ -110,6 +110,20 @@ In specific environments, you may want to not use auto-discovery and manual conn
 
 Check the client implementation in [nestor-examples](https://github.com/nbonamy/nestor-examples).
 
+## Suggestions
+
+Nestor is in its early stage and all suggestions are welcome!
+
+## Applications using Nestor
+
+### Clients
+
+- [Witsy](https://github.com/nbonamy/witsy): desktop AI assistant
+
+### Services
+
+- [TIDAL Streamer](https://github.com/nbonamy/tidal_streamer): Wrapper for TIDAL (music service) APIs 
+
 ## TODO
 
 - [x] Tests!
@@ -117,6 +131,3 @@ Check the client implementation in [nestor-examples](https://github.com/nbonamy/
 - [x] Support more HTTP verbs for API calls
 - [x] Publish ~~@nestor/*~~ nestor-* packages
 
-## Suggestions
-
-Nestor is in its early stage and all suggestions are welcome!
