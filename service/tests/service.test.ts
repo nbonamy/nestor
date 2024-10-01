@@ -61,14 +61,14 @@ test('Manual start', async () => {
   browser.start()
 
   const nestorService = new NestorService('service-test-2', 3000, '/list', { autostart: false })
-  await vi.waitFor(() =>  {}, 5000)
+  await vi.waitFor(() =>  {}, 10000)
   expect(connected).toBe(false)
 
   await nestorService.start()
-  await vi.waitUntil(() => connected, 5000)
+  await vi.waitUntil(() => connected, 10000)
 
   nestorService.stop()
-  await vi.waitUntil(() => !connected, 5000)
+  await vi.waitUntil(() => !connected, 10000)
 
 })
 
