@@ -1,7 +1,7 @@
 
 import { vi, test, expect } from 'vitest'
 import ServiceDiscovery from '../../src/services/discovery'
-import Bonjour from 'bonjour'
+import Bonjour from 'bonjour-service'
 
 //const spyCreateBrowser = vi.spyOn(Bonjour(), 'find')
 
@@ -10,7 +10,8 @@ class ServiceMock {
 
   // subtype is not consistently supported so using txt.type too
   start(port: number) {
-    this.ad = Bonjour().publish({
+    const bonjour = new Bonjour()
+    this.ad = bonjour.publish({
       name: 'service-test-1',
       type: 'nestor',
       subtypes: [ 'service' ],

@@ -1,9 +1,10 @@
 
 import express, { Express } from 'express'
+import { Service } from 'bonjour-service'
 import bodyParser from 'body-parser'
+import * as mdns from 'mdns'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import Bonjour from 'bonjour'
 import cors from 'cors'
 import path from 'path'
 
@@ -19,11 +20,11 @@ import DiscoveryService from './services/discovery'
 // start discovery immediately
 const serviceDirectory = new ServiceDirectory()
 const discoveryService = new DiscoveryService()
-discoveryService.start((service: Bonjour.RemoteService) => {
-  if (service.name && (service.subtypes.includes('service') || service.txt.type === 'service')) {
+discoveryService.start((service: Service) => {
+  if (service.name && (service.subtypes?.includes('service') || service.txt.type === 'service')) {
     serviceDirectory.add(service.name, service.host, service.port, service.txt.path)
   }
-}, (service: Bonjour.Service) => {
+}, (service: Service) => {
   if (service.name) {
     serviceDirectory.remove(service.name)
   }
@@ -76,17 +77,14 @@ app.use('/admin', adminRouter)
 app.use(express.static(path.join('src', 'public')))
 
 // shutdown
-let advertise: Bonjour.Service|null = null
+let ad: mdns.Advertisement|null = null
 process.on('SIGINT', async () => {
 
   // log
   console.log('Shutting down Nestor hub')
 
   // first stop advertising
-  const promise = new Promise<void>((resolve) => {
-    advertise?.stop(() => resolve())
-  })
-  await promise
+  ad?.stop()
   
   // done
   process.exit(0)
@@ -94,33 +92,19 @@ process.on('SIGINT', async () => {
 })
 
 // publish
-const publish = (baseName: string, port: number, index: number) => {
-  
-  const name = index == 0 ? baseName : `${baseName} (${index})`
+const publish = (name: string, port: number) => {
 
-  advertise = Bonjour().publish({
+  // we use mdns instead of bonjour-service here 
+  // https://github.com/onlxltd/bonjour-service/issues/46
+
+  // subtype is not consistently supported so using txtRecord too
+  ad = mdns.createAdvertisement(mdns.tcp('nestor', 'hub'), port, {
     name: name,
-    type: 'nestor',
-    subtypes: [ 'hub' ],
-    port: port,
-    txt: {
+    txtRecord: {
       type: 'hub',
     }
-    })
-
-    advertise.on('error', (error) => {
-    if (error.message === 'Service name is already in use on the network') {
-      publish(baseName, port, index + 1)
-    } else {
-      throw error
-    }
   })
-
-  advertise.on('up', () => {
-    console.log(`Hub published as "${name}" on network`)
-  })
-
-  advertise.start()
+  ad.start()
 
 }
 
@@ -128,6 +112,6 @@ const publish = (baseName: string, port: number, index: number) => {
 export const startHub = (name: string, port: number) => {
   app.listen(port, () => {
     console.log(`Nestor Hub is listening at http://localhost:${port}`)
-    publish(name, port, 0)
+    publish(name, port)
   })
 }

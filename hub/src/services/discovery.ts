@@ -1,17 +1,19 @@
 
-import Bonjour from 'bonjour'
+import Bonjour from 'bonjour-service'
+import { Browser, Service } from 'bonjour-service'
 
 export default class DiscoveryService {
 
-  browser?: Bonjour.Browser
+  bonjour!: Bonjour
+  browser?: Browser
 
   start(onUp: CallableFunction, onDown: CallableFunction) {
-
-    this.browser = Bonjour().find({ type: 'nestor' })
-    this.browser.on('up', (service: Bonjour.RemoteService) => {
+    this.bonjour = new Bonjour()
+    this.browser = this.bonjour.find({ type: 'nestor' })
+    this.browser.on('up', (service: Service) => {
       onUp(service)
     })
-    this.browser.on('down', (service: Bonjour.RemoteService) => {
+    this.browser.on('down', (service: Service) => {
       onDown(service)
     })
     this.browser.start()
