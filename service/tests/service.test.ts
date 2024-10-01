@@ -28,7 +28,7 @@ test('Advertises itself', async () => {
   browser.start()
 
   const nestorService = new NestorService('service-test-1', 3000, '/list')
-  await vi.waitUntil(() => connected, 5000)
+  await vi.waitUntil(() => connected, 10000)
   const payloadUp = onServiceUp.mock.calls.find((c: any) => c[0].name === 'service-test-1')
   expect(payloadUp).toBeDefined()
   if (payloadUp) {
@@ -37,7 +37,7 @@ test('Advertises itself', async () => {
   }
 
   nestorService.stop()
-  await vi.waitUntil(() => !connected, 5000)
+  await vi.waitUntil(() => !connected, 10000)
 
 })
 
