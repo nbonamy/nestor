@@ -105,10 +105,11 @@ Implementing a client is even more straightforward if you already have a LLM-bas
 - Import/require `NestorClient` in your application
 - Instantiate a new `NestorClient`
 - Provide the result of `NestorClient.list()` to the LLM call
+- Call `NestorClient.call()` when the LLM invokes a tool
 
 In specific environments, you may want to not use auto-discovery and manual connect to a hub knowing its hostname and port. In that case, you can pass `{ autostart: false }` when building the client and then use the `connect` and `disconnect` methods of `NestorClient`.
 
-Check the client implementation in [nestor-examples](https://github.com/nbonamy/nestor-examples).
+Check the client implementation in [nestor-examples](https://github.com/nbonamy/nestor-examples/blob/main/client/index.ts).
 
 ## Suggestions
 
