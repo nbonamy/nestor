@@ -1,7 +1,7 @@
 
 import { vi, test, expect, beforeEach } from 'vitest'
 import { NestorClient } from '../src/index'
-import Bonjour from 'bonjour'
+import { Bonjour, Service } from 'bonjour-service'
 
 global.fetch = vi.fn((req) => {
   if (req.includes('6000')) return { ok: true, json: () => { return { tools: [] } } }
@@ -30,11 +30,16 @@ const logger = {
 }
 
 class HubMock {
-  ad: any
   
-  // subtype is not consistently supported so using txt.type too
+  bonjour: Bonjour
+  ad: Service
+  
+  constructor() {
+    this.bonjour = new Bonjour()
+  }
+  
   start(port: number) {
-    this.ad = Bonjour().publish({
+    this.ad = this.bonjour.publish({
       name: 'hub-test-1',
       type: 'nestor',
       subtypes: [ 'hub' ],
@@ -43,10 +48,10 @@ class HubMock {
         'type': 'hub',
       }
     })
-    this.ad.start()
+    this.ad?.start?.()
   }
   stop() {
-    this.ad.stop()
+    this.ad?.stop?.()
   }
 }
 
