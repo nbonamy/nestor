@@ -1,8 +1,7 @@
 
 import express, { Express } from 'express'
-import { Service } from 'bonjour-service'
 import bodyParser from 'body-parser'
-import * as mdns from 'mdns'
+import mdns from 'mdns'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import cors from 'cors'
@@ -20,11 +19,11 @@ import DiscoveryService from './services/discovery'
 // start discovery immediately
 const serviceDirectory = new ServiceDirectory()
 const discoveryService = new DiscoveryService()
-discoveryService.start((service: Service) => {
-  if (service.name && (service.subtypes?.includes('service') || service.txt.type === 'service')) {
-    serviceDirectory.add(service.name, service.host, service.port, service.txt.path)
+discoveryService.start((service: mdns.Service) => {
+  if (service.name && (/*service.subtypes?.includes('service') || */service.txtRecord.type === 'service')) {
+    serviceDirectory.add(service.name, service.host, service.port, service.txtRecord.path)
   }
-}, (service: Service) => {
+}, (service: mdns.Service) => {
   if (service.name) {
     serviceDirectory.remove(service.name)
   }
@@ -93,9 +92,6 @@ process.on('SIGINT', async () => {
 
 // publish
 const publish = (name: string, port: number) => {
-
-  // we use mdns instead of bonjour-service here 
-  // https://github.com/onlxltd/bonjour-service/issues/46
 
   // subtype is not consistently supported so using txtRecord too
   ad = mdns.createAdvertisement(mdns.tcp('nestor', 'hub'), port, {

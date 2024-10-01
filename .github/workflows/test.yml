@@ -14,9 +14,5 @@ jobs:
           node-version: 20
       - name: Install Dependencies
         run: make install
-      - name: Run Hub tests
-        run: make testhub
-      - name: Run Service tests
-        run: make testservice
-      - name: Run Client tests
-        run: make testclient
+      - name: Run tests
+        run: make test

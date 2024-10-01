@@ -1,21 +1,25 @@
 
-import { Bonjour, Browser, Service } from 'bonjour-service'
+import mdns from 'mdns'
 
 export default class DiscoveryService {
 
-  bonjour!: Bonjour
-  browser?: Browser
+  browser!: mdns.Browser
 
   start(onUp: CallableFunction, onDown: CallableFunction) {
-    this.bonjour = new Bonjour()
-    this.browser = this.bonjour.find({ type: 'nestor' })
-    this.browser.on('up', (service: Service) => {
+    
+    // getaddr fails: https://stackoverflow.com/questions/29589543/raspberry-pi-mdns-getaddrinfo-3008-error
+    this.browser = mdns.createBrowser(mdns.tcp('nestor'), { resolverSequence: [
+      mdns.rst.DNSServiceResolve(),
+      'DNSServiceGetAddrInfo' in mdns.dns_sd ? mdns.rst.DNSServiceGetAddrInfo() : mdns.rst.getaddrinfo({families:[4]}),
+      mdns.rst.makeAddressesUnique()
+    ]})
+    this.browser.on('serviceUp', (service: mdns.Service) => {
       onUp(service)
     })
-    this.browser.on('down', (service: Service) => {
+    this.browser.on('serviceDown', (service: mdns.Service) => {
       onDown(service)
-    })
-    this.browser.start()
+    });
+    this.browser.start();
 
   }
 

@@ -1,5 +1,5 @@
 
-import * as mdns from 'mdns'
+import mdns from 'mdns'
 
 export interface NestorServiceOptions {
   autostart?: boolean
@@ -42,9 +42,6 @@ export class NestorService {
   }
 
   start(): void {
-
-    // we use mdns instead of bonjour-service here 
-    // https://github.com/onlxltd/bonjour-service/issues/46
 
     // subtype is not consistently supported so using txtRecord too
     this.advertise = mdns.createAdvertisement(mdns.tcp('nestor', 'service'), this.port, {

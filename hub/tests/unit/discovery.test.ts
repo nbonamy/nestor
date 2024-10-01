@@ -1,22 +1,18 @@
 
 import { vi, test, expect } from 'vitest'
 import ServiceDiscovery from '../../src/services/discovery'
-import { Bonjour } from 'bonjour-service'
+import mdns from 'mdns'
 
-//const spyCreateBrowser = vi.spyOn(Bonjour(), 'find')
+const spyCreateBrowser = vi.spyOn(mdns, 'createBrowser')
 
 class ServiceMock {
   ad: any
 
   // subtype is not consistently supported so using txt.type too
   start(port: number) {
-    const bonjour = new Bonjour()
-    this.ad = bonjour.publish({
+    this.ad = mdns.createAdvertisement(mdns.tcp('nestor', 'service'), port, {
       name: 'service-test-1',
-      type: 'nestor',
-      subtypes: [ 'service' ],
-      port: port,
-      txt: {
+      txtRecord: {
         type: 'service',
       }
     })
@@ -30,7 +26,7 @@ class ServiceMock {
 test('creates browser', async () => {
   const discovery = new ServiceDiscovery()
   discovery.start(() => {}, () => {})
-  //expect(spyCreateBrowser).toHaveBeenCalled()
+  expect(spyCreateBrowser).toHaveBeenCalled()
 })
 
 test('calls callbacks', async () => {

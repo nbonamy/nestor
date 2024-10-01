@@ -79,7 +79,13 @@ export class NestorClient {
   }
 
   start(): void {
-    
+
+    // we use bonjour-service and not mdns
+    // as mdns has platform dependencies
+    // which makes it painful to embed in electron
+    // and it seems to be fine enough for a client
+    // despite seeming to be not as good as mdns
+
     // now start the browser
     const bonjour = new Bonjour()
     this.browser = bonjour.find({ type: 'nestor' })
