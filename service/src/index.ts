@@ -1,5 +1,5 @@
 
-import Bonjour from 'bonjour'
+import * as mdns from 'mdns'
 
 export interface NestorServiceOptions {
   autostart?: boolean
@@ -16,7 +16,7 @@ export class NestorService {
   private port: number
   private path: string
   private registrations: Registration[]
-  private advertise?: Bonjour.Service
+  private advertise?: mdns.Advertisement
 
   constructor(name: string, port: number, path: string, opts?: NestorServiceOptions) {
 
@@ -43,19 +43,18 @@ export class NestorService {
 
   start(): void {
 
-    // subtype is not consistently supported so using txt.type too
-    this.advertise = Bonjour().publish({
+    // we use mdns instead of bonjour-service here 
+    // https://github.com/onlxltd/bonjour-service/issues/46
+
+    // subtype is not consistently supported so using txtRecord too
+    this.advertise = mdns.createAdvertisement(mdns.tcp('nestor', 'service'), this.port, {
       name: this.name,
-      type: 'nestor',
-      subtypes: [ 'service' ],
-      port: this.port,
-      txt: {
+      txtRecord: {
         type: 'service',
         path: this.path,
       }
     })
     this.advertise.start()
-
   }
 
   stop(): void {
@@ -96,10 +95,7 @@ export class NestorService {
     console.log('Shutting down Nestor service')
 
     // first stop advertising
-    const promise = new Promise<void>((resolve) => {
-      this.advertise?.stop(() => resolve())
-    })
-    await promise
+    this.advertise?.stop()
 
     // then unregister
     this.registrations.forEach(async r => await this.unregister(r.host, r.port))

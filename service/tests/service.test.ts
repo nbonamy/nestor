@@ -1,7 +1,7 @@
 
 import { vi, test, expect } from 'vitest'
 import { NestorService } from '../src/index'
-import Bonjour from 'bonjour'
+import Bonjour from 'bonjour-service'
 
 global.fetch = vi.fn((req) => {
   if (req.includes('3000'))  return { ok: true }
@@ -11,7 +11,8 @@ global.fetch = vi.fn((req) => {
 test('Advertises itself', async () => {
 
   let connected = false
-  const browser = Bonjour().find({ type: 'nestor' })
+  const bonjour = new Bonjour()
+  const browser = bonjour.find({ type: 'nestor' })
   const onServiceUp = vi.fn((service) => {
     if (service.name === 'service-test-1') {
       connected = true
@@ -43,7 +44,8 @@ test('Advertises itself', async () => {
 test('Manual start', async () => {
 
   let connected = false
-  const browser = Bonjour().find({ type: 'nestor' })
+  const bonjour = new Bonjour()
+  const browser = bonjour.find({ type: 'nestor' })
   const onServiceUp = vi.fn((service) => {
     if (service.name === 'service-test-2') {
       connected = true
