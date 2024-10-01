@@ -1,5 +1,5 @@
 
-import Bonjour from 'bonjour'
+import { Bonjour, Browser, Service } from 'bonjour-service'
 
 export type ToolsFormat = 'openai'
 
@@ -56,7 +56,7 @@ export class NestorClient {
   private logger?: Logger|null
   private format: ToolsFormat
   private cacheTtl: number
-  private browser?: Bonjour.Browser
+  private browser?: Browser
   private hubs: Hub[] = []
 
   constructor(opts?: NestorClientOptions) {
@@ -81,7 +81,8 @@ export class NestorClient {
   start(): void {
     
     // now start the browser
-    this.browser = Bonjour().find({ type: 'nestor' })
+    const bonjour = new Bonjour()
+    this.browser = bonjour.find({ type: 'nestor' })
     this.browser.on('up', (service) => {
       if (service.subtypes.includes('hub') || service.txt.type === 'hub') {
         this.add(service)
@@ -145,7 +146,7 @@ export class NestorClient {
     return await response.json()
   }
 
-  private add(service: Bonjour.RemoteService) {
+  private add(service: Service) {
     if (!service.name) return
     let hub = this.hubs.find(hub => hub.name === service.name)
     if (hub) {

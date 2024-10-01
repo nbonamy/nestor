@@ -1,7 +1,7 @@
 
 import { vi, test, expect } from 'vitest'
 import { NestorService } from '../src/index'
-import Bonjour from 'bonjour-service'
+import { Bonjour } from 'bonjour-service'
 
 global.fetch = vi.fn((req) => {
   if (req.includes('3000'))  return { ok: true }

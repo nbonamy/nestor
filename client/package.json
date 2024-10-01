@@ -1,6 +1,6 @@
 {
   "name": "nestor-client",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -18,7 +18,7 @@
   "license": "Apache-2.0",
   "description": "Helpers to implement a Nestor client",
   "dependencies": {
-    "bonjour": "^3.5.0"
+    "bonjour-service": "^1.2.1"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",

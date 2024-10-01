@@ -1,7 +1,7 @@
 
 import { vi, test, expect } from 'vitest'
 import ServiceDiscovery from '../../src/services/discovery'
-import Bonjour from 'bonjour-service'
+import { Bonjour } from 'bonjour-service'
 
 //const spyCreateBrowser = vi.spyOn(Bonjour(), 'find')
 

@@ -1,6 +1,5 @@
 
-import Bonjour from 'bonjour-service'
-import { Browser, Service } from 'bonjour-service'
+import { Bonjour, Browser, Service } from 'bonjour-service'
 
 export default class DiscoveryService {
 
