@@ -12,14 +12,13 @@
   const status = await client.status()
   console.log(`Found ${status.hubs.length} hub(s)`)
   for (const hub of status.hubs) {
-    console.log(`  - ${hub.name} @ ${hub.host}:${hub.port}`)
+    console.log(`  * ${hub.name} @ ${hub.host}:${hub.port}`)
+    for (const tool of hub.tools) {
+      console.log(`    - ${tool}`)
+    }
   }
 
-  // now service list
-  const list = await client.list()
-  console.log(`\nServices:`)
-  console.log(list.map((s) => { return { name: s.function.name, description: s.function.description } }))
-
+  // done
   process.exit(0)
 
 })()
